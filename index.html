@@ -1,53 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Flint Family Adventures</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body style="font-family: Arial; margin:0; background:#0f172a; color:white; text-align:center;">
+<body>
+  <main class="app">
+    <section id="loginScreen" class="screen login-screen">
+      <div class="glass-card login-card">
+        <div class="logo">🏔️</div>
+        <h1>Flint Family Adventures</h1>
+        <p>Private family adventure hub</p>
+        <input id="passwordInput" type="password" placeholder="Enter password" autocomplete="current-password" />
+        <button id="loginButton">Enter Family Hub</button>
+        <p id="loginError" class="error"></p>
+        <small>Temporary password: <strong>flint2026</strong></small>
+      </div>
+    </section>
 
-  <div style="padding:50px 20px;">
-    <h1>🏔️ Flint Family Adventures</h1>
-    <p>Private family hub</p>
+    <section id="dashboardScreen" class="screen dashboard-screen hidden">
+      <header class="hero">
+        <p class="eyebrow">Welcome back</p>
+        <h1>Flint Family Adventures</h1>
+        <p>Every adventure. Every memory. One place.</p>
+      </header>
 
-    <input id="password" type="password" placeholder="Enter password"
-      style="padding:15px; border-radius:12px; border:none; font-size:18px; margin-top:20px; width:80%; max-width:300px;">
+      <section class="next-trip card">
+        <div>
+          <p class="eyebrow">Next Adventure</p>
+          <h2>Coming soon</h2>
+          <p>Add your next trip here.</p>
+        </div>
+        <div class="countdown">✈️</div>
+      </section>
 
-    <br><br>
+      <section class="grid">
+        <button class="tile"><span>✈️</span><strong>Trips</strong><small>Upcoming, past and dream trips</small></button>
+        <button class="tile"><span>📸</span><strong>Memories</strong><small>Photos and favourite moments</small></button>
+        <button class="tile"><span>🗺️</span><strong>Map</strong><small>Places you have been</small></button>
+        <button class="tile"><span>📅</span><strong>Calendar</strong><small>Family dates and plans</small></button>
+        <button class="tile"><span>🎄</span><strong>Christmas</strong><small>Ideas, lists and plans</small></button>
+        <button class="tile"><span>⚙️</span><strong>Settings</strong><small>Website options</small></button>
+      </section>
 
-    <button onclick="login()" style="padding:15px 25px; border-radius:12px; border:none; font-size:18px;">
-      Enter
-    </button>
-
-    <p id="message" style="color:#fca5a5;"></p>
-  </div>
-
-  <script>
-    function login() {
-      const password = document.getElementById("password").value;
-
-      if (password === "flint2026") {
-        document.body.innerHTML = `
-          <div style="padding:40px 20px;">
-            <h1>🏠 Welcome to Flint Family Adventures</h1>
-            <p>You are logged in.</p>
-
-            <div style="background:white; color:#0f172a; border-radius:20px; padding:25px; margin-top:30px;">
-              <h2>✈️ Next Adventure</h2>
-              <p>Coming soon...</p>
-            </div>
-
-            <div style="background:white; color:#0f172a; border-radius:20px; padding:25px; margin-top:20px;">
-              <h2>📸 Memories</h2>
-              <p>Photos coming soon...</p>
-            </div>
-          </div>
-        `;
-      } else {
-        document.getElementById("message").innerText = "Wrong password, try again.";
-      }
-    }
-  </script>
-
+      <button id="logoutButton" class="logout">Log out</button>
+    </section>
+  </main>
+  <script src="script.js"></script>
 </body>
 </html>
