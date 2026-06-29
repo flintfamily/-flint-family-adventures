@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Flint Family Adventures</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body style="font-family: Arial; margin:0; background:#0f172a; color:white; text-align:center;">
+
+  <div style="padding:50px 20px;">
+    <h1>🏔️ Flint Family Adventures</h1>
+    <p>Private family hub</p>
+
+    <input id="password" type="password" placeholder="Enter password"
+      style="padding:15px; border-radius:12px; border:none; font-size:18px; margin-top:20px; width:80%; max-width:300px;">
+
+    <br><br>
+
+    <button onclick="login()" style="padding:15px 25px; border-radius:12px; border:none; font-size:18px;">
+      Enter
+    </button>
+
+    <p id="message" style="color:#fca5a5;"></p>
+  </div>
+
+  <script>
+    function login() {
+      const password = document.getElementById("password").value;
+
+      if (password === "flint2026") {
+        document.body.innerHTML = `
+          <div style="padding:40px 20px;">
+            <h1>🏠 Welcome to Flint Family Adventures</h1>
+            <p>You are logged in.</p>
+
+            <div style="background:white; color:#0f172a; border-radius:20px; padding:25px; margin-top:30px;">
+              <h2>✈️ Next Adventure</h2>
+              <p>Coming soon...</p>
+            </div>
+
+            <div style="background:white; color:#0f172a; border-radius:20px; padding:25px; margin-top:20px;">
+              <h2>📸 Memories</h2>
+              <p>Photos coming soon...</p>
+            </div>
+          </div>
+        `;
+      } else {
+        document.getElementById("message").innerText = "Wrong password, try again.";
+      }
+    }
+  </script>
+
+</body>
+</html>
