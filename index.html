@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Flint Family Adventures</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:linear-gradient(rgba(3,7,18,.90),rgba(3,7,18,.98)),radial-gradient(circle at top,#38bdf8 0%,#0f172a 42%,#020617 100%);color:white;min-height:100vh}
+.hidden{display:none!important}.screen{min-height:100vh;padding:24px 16px 112px}.wrap{max-width:720px;margin:0 auto}
+.glass,.card{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);box-shadow:0 24px 70px rgba(0,0,0,.32);backdrop-filter:blur(18px)}
+.card{border-radius:28px;padding:20px;margin-bottom:14px}.hero{border-radius:32px;padding:24px 22px;margin-bottom:16px}
+.center{display:flex;align-items:center;justify-content:center}.auth-card{width:100%;max-width:440px;border-radius:30px;padding:28px;text-align:center}
+.logo{font-size:54px;margin-bottom:12px}h1,h2,h3,p{margin-top:0}h1{font-size:34px;line-height:1.05;margin-bottom:10px}h2{font-size:23px;margin-bottom:10px}h3{font-size:18px;margin-bottom:6px}
+.muted{color:rgba(255,255,255,.72);line-height:1.45}.small{font-size:13px;color:rgba(255,255,255,.66)}.ok{color:#bbf7d0}.err{color:#fecaca}
+label{display:block;text-align:left;font-size:13px;font-weight:850;color:rgba(255,255,255,.78);margin-top:7px}
+input,textarea,select{width:100%;padding:15px;border-radius:16px;border:none;font-size:16px;margin:8px 0 12px;outline:none;font-family:inherit;background:#fff;color:#0f172a}
+textarea{min-height:95px}button{width:100%;padding:16px;border-radius:16px;border:none;font-size:17px;font-weight:850;background:#f8fafc;color:#0f172a;margin-top:6px}
+.secondary{background:rgba(255,255,255,.14);color:white;border:1px solid rgba(255,255,255,.18)}.danger{background:#fecaca;color:#7f1d1d}
+.notice{border-radius:18px;padding:12px;margin-bottom:12px;background:rgba(14,165,233,.18);border:1px solid rgba(125,211,252,.25);font-size:13px;color:rgba(255,255,255,.82)}
+.warning{background:rgba(245,158,11,.18);border-color:rgba(251,191,36,.35)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}.tile{min-height:128px;border-radius:24px;padding:18px;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.17)}
+.tile:active,.card:active,.back:active{transform:scale(.985)}.tile-icon{font-size:30px;margin-bottom:14px}.tile p{font-size:13px;color:rgba(255,255,255,.70);line-height:1.35;margin-bottom:0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}.stat{border-radius:18px;padding:12px 8px;text-align:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14)}
+.stat strong{display:block;font-size:24px}.stat span{font-size:12px;color:rgba(255,255,255,.68)}
+.back{display:inline-block;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.16);margin-bottom:14px;font-weight:750}.page-title{margin:8px 0 18px}
+.pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.12);font-size:12px;font-weight:850;color:rgba(255,255,255,.78);margin-bottom:10px}
+.feature-title{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.62);font-weight:950;margin:20px 0 10px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.action-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.filterbar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.filterbar button{font-size:13px;padding:11px 8px;margin:0}.filterbar button.active{background:#f8fafc;color:#0f172a}
+.empty{border-radius:24px;padding:20px;text-align:center;background:rgba(255,255,255,.08);border:1px dashed rgba(255,255,255,.22)}
+.member-row{display:flex;gap:12px;align-items:center}.avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.15);font-size:22px;flex:0 0 auto}
+.bottom-nav{position:fixed;left:12px;right:12px;bottom:12px;max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:10px;border-radius:24px;background:rgba(2,6,23,.92);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(20px);z-index:5}
+.nav-item{text-align:center;font-size:12px;color:rgba(255,255,255,.72)}.nav-item span{display:block;font-size:21px;margin-bottom:3px}.nav-item.active{color:white;font-weight:850}
+.planner-section{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.12)}
+.check-item{display:flex;align-items:center;gap:10px;margin:8px 0;padding:12px;border-radius:16px;background:rgba(255,255,255,.09)}.check-item input{width:auto;margin:0}
+.vote-choice{display:block;width:100%;text-align:left;margin:8px 0;padding:14px;border-radius:18px;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.16);color:white;font-weight:900}.vote-choice.selected{background:#f8fafc;color:#0f172a}
+.progress{height:10px;border-radius:999px;background:rgba(255,255,255,.15);overflow:hidden;margin-top:10px}.progress>div{height:100%;background:rgba(125,211,252,.9);border-radius:999px}
+.badge-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.badge{border-radius:20px;padding:14px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.15)}.badge strong{display:block;font-size:24px;margin-bottom:4px}
+.map-board{border-radius:28px;min-height:250px;padding:18px;background:radial-gradient(circle at 25% 20%,rgba(56,189,248,.35),transparent 32%),radial-gradient(circle at 75% 55%,rgba(34,197,94,.25),transparent 30%),rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18)}
+.map-pin{display:inline-block;margin:6px;padding:10px 12px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);font-weight:850}
+.mood-row,.star-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:8px 0 12px}.mood-row button,.star-row button{padding:12px 4px;font-size:22px;margin:0}.mood-row button.active,.star-row button.active{background:#f8fafc;color:#0f172a}
+.searchbox{position:sticky;top:0;z-index:3;background:rgba(2,6,23,.92);padding:10px 0 12px;backdrop-filter:blur(16px)}
+.timeline-year{font-size:28px;font-weight:950;margin:22px 0 8px}
+</style>
+</head>
+<body>
+
+<section id="gateScreen" class="screen center">
+  <div class="auth-card glass">
+    <div class="logo">🏔️</div><h1>Flint Family Adventures</h1><p class="muted">Private family access.</p>
+    <label>Family password</label><input id="gatePassword" type="password" placeholder="Enter family password">
+    <button onclick="openLogin()">Continue</button><p id="gateMsg" class="err"></p>
+  </div>
+</section>
+
+<section id="authScreen" class="screen center hidden">
+  <div class="auth-card glass">
+    <div class="logo">🏔️</div><h1>Flint Family Adventures</h1><p class="muted">Sign in with your own account.</p>
+    <div id="loginBox">
+      <label>Email</label><input id="loginEmail" type="email" placeholder="you@email.com">
+      <label>Password</label><input id="loginPassword" type="password" placeholder="Password">
+      <button onclick="signIn()">Log In</button><button class="secondary" onclick="showAuth('signup')">Create Account</button><button class="secondary" onclick="resetPassword()">Forgot Password</button>
+      <p id="loginMsg" class="err"></p>
+    </div>
+    <div id="signupBox" class="hidden">
+      <label>Name</label><input id="signupName" placeholder="Luke Flint">
+      <label>Email</label><input id="signupEmail" type="email" placeholder="you@email.com">
+      <label>Password</label><input id="signupPassword" type="password" placeholder="Choose a password">
+      <button onclick="signUp()">Create Account</button><button class="secondary" onclick="showAuth('login')">Back to Login</button><p id="signupMsg" class="ok"></p>
+    </div>
+  </div>
+</section>
+
+<section id="appScreen" class="screen hidden">
+<div class="wrap">
+  <div id="homePage" class="page">
+    <div class="hero glass">
+      <div class="logo">🏔️</div><h1>Flint Family Adventures</h1><p id="welcomeText" class="welcome">Welcome Home</p><p class="muted">Every Adventure. Every Memory. One Place.</p>
+    </div>
+    <div id="statusBanner" class="notice">Loading...</div>
+    <div id="nextAdventureCard" class="card">
+      <span class="pill">✈️ Next Adventure</span><h2 id="nextAdventureTitle">No upcoming adventure yet</h2><p id="nextAdventureMeta" class="muted">Add an upcoming trip with a start date.</p>
+      <div class="stats"><div class="stat"><strong id="countDays">--</strong><span>Days</span></div><div class="stat"><strong id="countHours">--</strong><span>Hours</span></div><div class="stat"><strong id="countMinutes">--</strong><span>Minutes</span></div></div>
+    </div>
+    <div class="stats"><div class="stat"><strong id="statMembers">0</strong><span>Members</span></div><div class="stat"><strong id="statTrips">0</strong><span>Trips</span></div><div class="stat"><strong id="statJournal">0</strong><span>Journals</span></div></div>
+    <div class="feature-title">Family App</div>
+    <div class="stats"><div class="stat"><strong id="statCountries">0</strong><span>Places</span></div><div class="stat"><strong id="statFlights">0</strong><span>Flights</span></div><div class="stat"><strong id="statPacked">0%</strong><span>Packed</span></div></div>
+    <div class="card" onclick="showPage('votes')"><span class="pill">🗳 Active Vote</span><h2 id="homeVoteTitle">No active vote yet</h2><p id="homeVoteText" class="muted">Tap Votes to create one.</p></div>
+    <div class="card"><span class="pill">📖 Latest Journal</span><h2 id="latestJournalTitle">No journal yet</h2><p id="latestJournalText" class="muted">Add a memory in the Journal.</p></div>
+    <div class="grid">
+      <div class="tile" onclick="showPage('family')"><div class="tile-icon">👨‍👩‍👧</div><h3>Family</h3><p>Members, roles and access.</p></div>
+      <div class="tile" onclick="showPage('trips')"><div class="tile-icon">✈️</div><h3>Adventures</h3><p>Plan, book and remember trips.</p></div>
+      <div class="tile" onclick="showPage('journal')"><div class="tile-icon">📖</div><h3>Journal</h3><p>Noah-friendly memories.</p></div>
+      <div class="tile" onclick="showPage('votes')"><div class="tile-icon">🗳</div><h3>Votes</h3><p>Family decisions.</p></div>
+      <div class="tile" onclick="showPage('map')"><div class="tile-icon">🗺️</div><h3>Map</h3><p>Pins and places.</p></div>
+      <div class="tile" onclick="showPage('passport')"><div class="tile-icon">🛂</div><h3>Passport</h3><p>Stamps and badges.</p></div>
+      <div class="tile" onclick="showPage('search')"><div class="tile-icon">🔎</div><h3>Search</h3><p>Find anything.</p></div>
+      <div class="tile" onclick="showPage('story')"><div class="tile-icon">📚</div><h3>Story Book</h3><p>Trip summary.</p></div>
+    </div>
+  </div>
+
+  <div id="familyPage" class="page hidden"><div class="back" onclick="showPage('home')">← Home</div><h1 class="page-title">👨‍👩‍👧 Family</h1><button onclick="showPage('memberForm')">➕ Add Family Member</button><div id="membersList" style="margin-top:14px"></div></div>
+  <div id="memberFormPage" class="page hidden"><div class="back" onclick="showPage('family')">← Family</div><h1 class="page-title">Add Family Member</h1><div class="card"><p class="muted">Add their email here first. Then they can use the family password and create their own account.</p><label>Name</label><input id="memberName"><label>Email</label><input id="memberEmail" type="email"><label>Role</label><select id="memberRole"><option>owner</option><option>editor</option><option>junior explorer</option><option>viewer</option></select><button onclick="saveMember()">Save Member</button></div></div>
+
+  <div id="tripsPage" class="page hidden">
+    <div class="back" onclick="showPage('home')">← Home</div><h1 class="page-title">✈️ Adventures</h1><button onclick="clearTripForm();showPage('tripForm')">➕ Add Adventure</button>
+    <div class="filterbar"><button id="filter-all" class="active" onclick="setTripFilter('all')">All</button><button id="filter-upcoming" onclick="setTripFilter('upcoming')">Upcoming</button><button id="filter-past" onclick="setTripFilter('past')">Past</button><button id="filter-dream" onclick="setTripFilter('dream')">Dream</button></div>
+    <div id="tripsList"></div>
+  </div>
+
+  <div id="tripFormPage" class="page hidden">
+    <div class="back" onclick="showPage('trips')">← Adventures</div><h1 id="tripFormTitle" class="page-title">Add Adventure</h1>
+    <div class="card">
+      <input id="tripId" type="hidden">
+      <label>Title</label><input id="tripTitleInput" placeholder="Center Parcs De Haan">
+      <label>Country/place</label><input id="tripCountryInput" placeholder="Belgium">
+      <div class="row"><div><label>Start date</label><input id="tripStartInput" type="date"></div><div><label>End date</label><input id="tripEndInput" type="date"></div></div>
+      <div class="row"><div><label>Status</label><select id="tripStatusInput"><option>upcoming</option><option>past</option><option>dream</option><option>cancelled</option></select></div><div><label>Flights</label><input id="tripFlightsInput" type="number" value="0"></div></div>
+      <label>Favourite memory</label><textarea id="tripFavouriteInput"></textarea>
+      <h2>📌 Booking</h2><label>Booking reference</label><input id="bookingRefInput"><label>Accommodation</label><input id="accommodationInput"><label>Address</label><textarea id="addressInput"></textarea><label>Travel</label><textarea id="travelDetailsInput"></textarea><div class="row"><div><label>Check-in</label><input id="checkInInput"></div><div><label>Check-out</label><input id="checkOutInput"></div></div>
+      <h2>💰 Budget</h2><div class="row"><div><label>Budget</label><input id="budgetInput" type="number"></div><div><label>Paid</label><input id="paidInput" type="number"></div></div><label>Notes</label><textarea id="plannerNotesInput"></textarea>
+      <button onclick="saveTrip()">Save Adventure</button>
+    </div>
+  </div>
+
+  <div id="tripDetailPage" class="page hidden"><div class="back" onclick="showPage('trips')">← Adventures</div><div id="tripDetail"></div></div>
+
+  <div id="journalPage" class="page hidden">
+    <div class="back" onclick="showPage('home')">← Home</div><h1 class="page-title">📖 Noah's Journal</h1>
+    <div class="card"><h2>✍️ Add Journal Entry</h2><label>Adventure</label><select id="journalTripSelect"></select><label>How was today?</label><div class="mood-row"><button id="mood-😀" onclick="setMood('😀')">😀</button><button id="mood-😍" onclick="setMood('😍')">😍</button><button id="mood-😎" onclick="setMood('😎')">😎</button><button id="mood-😴" onclick="setMood('😴')">😴</button><button id="mood-🤯" onclick="setMood('🤯')">🤯</button></div><label>Rating</label><div class="star-row"><button id="star-1" onclick="setStars(1)">⭐</button><button id="star-2" onclick="setStars(2)">⭐</button><button id="star-3" onclick="setStars(3)">⭐</button><button id="star-4" onclick="setStars(4)">⭐</button><button id="star-5" onclick="setStars(5)">⭐</button></div><label>Title</label><input id="journalTitleInput" placeholder="Day 1"><label>Memory</label><textarea id="journalTextInput" placeholder="What happened today?"></textarea><label>Favourite moment</label><input id="journalFavouriteInput"><label>Extras</label><input id="journalExtrasInput"><button onclick="saveJournalEntry()">Save Journal</button></div>
+    <div id="journalList"></div>
+  </div>
+
+  <div id="votesPage" class="page hidden">
+    <div class="back" onclick="showPage('home')">← Home</div><h1 class="page-title">🗳 Family Votes</h1>
+    <div class="card"><h2>Create a vote</h2><label>Question</label><input id="voteTitleInput" placeholder="Where should we go next?"><label>Options, one per line</label><textarea id="voteOptionsInput" placeholder="Iceland&#10;Canada&#10;Japan"></textarea><label>Closing date</label><input id="voteCloseInput" type="date"><button onclick="saveVote()">Create Vote</button></div>
+    <div id="votesList"></div>
+  </div>
+
+  <div id="mapPage" class="page hidden"><div class="back" onclick="showPage('home')">← Home</div><h1 class="page-title">🗺️ Maps</h1><div class="card"><h2>Add Map Pin</h2><label>Adventure</label><select id="mapTripSelect"></select><label>Place name</label><input id="mapNameInput" placeholder="Aqua Mundo"><label>Type</label><input id="mapTypeInput" placeholder="swimming, food, hotel..."><label>Notes</label><textarea id="mapNotesInput"></textarea><button onclick="saveMapPin()">Save Pin</button></div><div class="map-board"><h2>World Adventure Map</h2><div id="worldPins"></div></div><div id="mapList"></div></div>
+
+  <div id="passportPage" class="page hidden"><div class="back" onclick="showPage('home')">← Home</div><h1 class="page-title">🛂 Passport</h1><div id="passportList"></div><div class="feature-title">Achievements</div><div id="achievementList" class="badge-grid"></div></div>
+
+  <div id="searchPage" class="page hidden"><div class="back" onclick="showPage('home')">← Home</div><h1 class="page-title">🔎 Search</h1><div class="searchbox"><input id="searchInput" placeholder="Search trips, journals, bookings..." oninput="renderSearch()"></div><div id="searchResults"></div></div>
+  <div id="storyPage" class="page hidden"><div class="back" onclick="showPage('home')">← Home</div><h1 class="page-title">📚 Story Book</h1><div class="card"><label>Adventure</label><select id="storyTripSelect"></select><button onclick="renderStoryBook()">Create Story</button></div><div id="storyOutput"></div></div>
+  <div id="activityPage" class="page hidden"><div class="back" onclick="showPage('home')">← Home</div><h1 class="page-title">📋 Activity</h1><div id="activityList"></div></div>
+  <div id="adminPage" class="page hidden"><div class="back" onclick="showPage('home')">← Home</div><h1 class="page-title">👑 Owner Console</h1><div id="adminBox"></div></div>
+  <div id="profilePage" class="page hidden"><div class="back" onclick="showPage('home')">← Home</div><h1 class="page-title">🙂 Profile</h1><div id="profileBox"></div></div>
+</div>
+<nav class="bottom-nav"><div id="nav-home" class="nav-item active" onclick="showPage('home')"><span>🏠</span>Home</div><div id="nav-family" class="nav-item" onclick="showPage('family')"><span>👨‍👩‍👧</span>Family</div><div id="nav-trips" class="nav-item" onclick="showPage('trips')"><span>✈️</span>Trips</div><div id="nav-journal" class="nav-item" onclick="showPage('journal')"><span>📖</span>Journal</div><div id="nav-votes" class="nav-item" onclick="showPage('votes')"><span>🗳️</span>Votes</div></nav>
+</section>
+
+<script>
+const FAMILY_PASSWORD="flint2026", OWNER_EMAIL="flintluke@ymail.com";
+const SUPABASE_URL="https://exrbyfibgnblhhuzfjgv.supabase.co";
+const SUPABASE_KEY="sb_publishable_H8-U2hZ3WZ4OR3cVVaV4cw_5RBCZis0";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let currentUser=null,currentMember=null, members=[], trips=[], planners=[], journals=[], votes=[], voteOptions=[], voteResponses=[], packing=[], todos=[], pins=[], stamps=[], achievements=[], activities=[], storyBooks=[], dbWarnings=[];
+let tripFilter="all", selectedMood="😀", selectedStars=5, selectedTripId=null, selectedVoteChoice={};
+
+function norm(v){return (v||"").toString().trim().toLowerCase()}
+function roleNorm(v){return norm(v)}
+function openLogin(){if(gatePassword.value===FAMILY_PASSWORD){gateScreen.classList.add("hidden");authScreen.classList.remove("hidden");gateMsg.textContent=""}else gateMsg.textContent="Incorrect family password."}
+function showAuth(mode){loginBox.classList.toggle("hidden",mode!=="login");signupBox.classList.toggle("hidden",mode!=="signup")}
+async function signUp(){signupMsg.textContent="Creating account...";const email=norm(signupEmail.value);const mem=await db.from("family_members").select("*");const existing=mem.data||[];const approved=existing.find(m=>norm(m.email)===email);if(existing.length && !approved && email!==OWNER_EMAIL){alert("This email has not been added by Luke yet.");signupMsg.textContent="";return}const res=await db.auth.signUp({email,password:signupPassword.value,options:{data:{name:signupName.value}}});if(res.error){signupMsg.textContent=res.error.message;return}if(!existing.length||email===OWNER_EMAIL){await db.from("family_members").upsert([{name:signupName.value||"Luke Flint",email,role:"owner",total_logins:0,is_active:true}],{onConflict:"email"})}signupMsg.textContent="Account created. You can now log in."}
+async function signIn(){loginMsg.textContent="Signing in...";const res=await db.auth.signInWithPassword({email:norm(loginEmail.value),password:loginPassword.value});if(res.error){loginMsg.textContent=res.error.message;return}currentUser=res.data.user;await bootApp()}
+async function resetPassword(){if(!loginEmail.value){loginMsg.textContent="Enter your email first.";return}const res=await db.auth.resetPasswordForEmail(loginEmail.value,{redirectTo:"https://flintfamilyadventures.uk"});loginMsg.textContent=res.error?res.error.message:"Password reset email sent."}
+async function signOut(){await db.auth.signOut();location.reload()}
+async function bootApp(){await loadData();if(!currentMember&&norm(currentUser?.email)===OWNER_EMAIL){currentMember={name:"Luke Flint",email:OWNER_EMAIL,role:"owner",is_active:true,total_logins:0}}if(!currentMember){await db.auth.signOut();loginMsg.textContent="This email has not been approved for Flint Family Adventures.";return}authScreen.classList.add("hidden");gateScreen.classList.add("hidden");appScreen.classList.remove("hidden");await updateLoginStats();await logActivity("Logged in");await loadData();showPage("home")}
+
+async function table(name, order="created_at", asc=false){const r=await db.from(name).select("*").order(order,{ascending:asc});if(r.error){dbWarnings.push(name+": "+r.error.message);return []}return r.data||[]}
+async function loadData(){
+ dbWarnings=[];const u=await db.auth.getUser();currentUser=u.data.user;
+ members=await table("family_members","created_at",true);currentMember=currentUser?members.find(m=>norm(m.email)===norm(currentUser.email)):null;
+ trips=await table("adventures","start_date",true); planners=await table("trip_planner","created_at",true); journals=await table("journal_entries","created_at",false);
+ votes=await table("family_votes","created_at",false); voteOptions=await table("vote_options","sort_order",true); voteResponses=await table("vote_responses","created_at",false);
+ packing=await table("packing_items","created_at",true); todos=await table("todo_items","created_at",true); pins=await table("trip_locations","created_at",true);
+ stamps=await table("passport_stamps","created_at",true); achievements=await table("achievements","created_at",true); activities=await table("activity_log","created_at",false); storyBooks=await table("story_books","created_at",false);
+ renderAll();
+}
+async function updateLoginStats(){if(!currentMember?.id)return;await db.from("family_members").update({last_login:new Date().toISOString(),total_logins:(currentMember.total_logins||0)+1}).eq("id",currentMember.id)}
+async function logActivity(action){if(currentUser)await db.from("activity_log").insert([{member_email:currentUser.email,action}])}
+function canAdmin(){return roleNorm(currentMember?.role)==="owner"} function canEdit(){return ["owner","editor","junior explorer"].includes(roleNorm(currentMember?.role))}
+function roleIcon(role){role=roleNorm(role);if(role==="owner")return"👑";if(role==="editor")return"✏️";if(role==="junior explorer")return"⭐";return"👀"}
+function tripVal(t,k){const map={"Title":"title","Country":"country","Start date":"start_date","End date":"end_date","Status":"status","Flights":"flights","Favourite":"favourite"};return t?.[map[k]||k]??""}
+function planner(t){return planners.find(p=>String(p.trip_id)===String(t?.id))||{}}
+function packFor(id){return packing.filter(x=>String(x.trip_id)===String(id))}
+function todosFor(id){return todos.filter(x=>String(x.trip_id)===String(id))}
+function journalsFor(id){return journals.filter(x=>String(x.trip_id)===String(id))}
+function pinsFor(id){return pins.filter(x=>String(x.trip_id)===String(id))}
+function money(n){return "£"+(Number(n)||0).toLocaleString("en-GB")}
+function listLines(text){return (text||"").split("\\n").map(x=>x.trim()).filter(Boolean)}
+function dateNice(d){return d?new Date(d+"T00:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}):""}
+
+function renderAll(){renderHome();renderMembers();renderTrips();renderJournal();renderVotes();renderMap();renderPassport();renderActivity();renderProfile();renderAdmin();renderSelects();renderSearch()}
+function renderHome(){
+ welcomeText.textContent="Welcome Home, "+(currentMember?.name||"Flint Family");statusBanner.textContent=(canAdmin()?"👑 Owner access active":"Family access active")+" • "+(currentUser?.email||"");
+ statMembers.textContent=members.length;statTrips.textContent=trips.length;statJournal.textContent=journals.length;
+ statCountries.textContent=[...new Set(trips.map(t=>t.country).filter(Boolean))].length;statFlights.textContent=trips.reduce((s,t)=>s+(Number(t.flights)||0),0);
+ const totalPack=packing.length, donePack=packing.filter(p=>p.packed).length;statPacked.textContent=totalPack?Math.round(donePack/totalPack*100)+"%":"0%";
+ renderNextAdventure();
+ const openVote=votes.find(v=>v.status!=="closed"); if(openVote){const count=voteResponses.filter(r=>String(r.vote_id)===String(openVote.id)).length;homeVoteTitle.textContent=openVote.title;homeVoteText.textContent=count+" votes cast • Tap to vote"}else{homeVoteTitle.textContent="No active vote yet";homeVoteText.textContent="Tap Votes to create one."}
+ const latest=journals[0]; if(latest){latestJournalTitle.textContent=latest.title||latest.author_name||"Latest memory";latestJournalText.textContent=latest.journal||latest.favourite||""}else{latestJournalTitle.textContent="No journal yet";latestJournalText.textContent="Add a memory in the Journal."}
+}
+function getNextAdventure(){const now=new Date();return trips.filter(t=>t.status==="upcoming"&&t.start_date).map(t=>({trip:t,date:new Date(t.start_date+"T09:00:00")})).filter(x=>x.date>=now).sort((a,b)=>a.date-b.date)[0]}
+function renderNextAdventure(){const n=getNextAdventure();if(!n){nextAdventureTitle.textContent="No upcoming adventure yet";nextAdventureMeta.textContent="Add an upcoming trip with a start date.";countDays.textContent=countHours.textContent=countMinutes.textContent="--";return}nextAdventureTitle.textContent=n.trip.title;nextAdventureMeta.textContent=(n.trip.country?n.trip.country+" • ":"")+dateNice(n.trip.start_date)+(n.trip.end_date?" – "+dateNice(n.trip.end_date):"");updateCountdown()}
+function updateCountdown(){const n=getNextAdventure();if(!n)return;const diff=n.date-new Date();if(diff<=0)return;countDays.textContent=Math.floor(diff/(1000*60*60*24));countHours.textContent=Math.floor((diff/(1000*60*60))%24);countMinutes.textContent=Math.floor((diff/(1000*60))%60)}
+
+function renderMembers(){membersList.innerHTML=members.map(m=>`<div class="card"><div class="member-row"><div class="avatar">${roleIcon(m.role)}</div><div><h3>${m.name||"Unnamed"}</h3><p class="muted">${m.email}<br>${m.role||"viewer"} • logins: ${m.total_logins||0}<br>Last: ${m.last_login?new Date(m.last_login).toLocaleString("en-GB"):"never"}</p></div></div>${canAdmin()?`<button class="danger" onclick="removeMember('${m.id}','${(m.name||"member").replaceAll("'","")}')">Remove</button>`:""}</div>`).join("")}
+async function saveMember(){if(!canAdmin())return alert("Only owner can add family.");const payload={name:memberName.value,email:norm(memberEmail.value),role:memberRole.value,total_logins:0,is_active:true};const r=await db.from("family_members").insert([payload]);if(r.error)return alert(r.error.message);await logActivity("Added family member: "+payload.name);memberName.value=memberEmail.value="";await loadData();showPage("family")}
+async function removeMember(id,name){if(!confirm("Remove "+name+"?"))return;await db.from("family_members").delete().eq("id",id);await loadData()}
+
+function setTripFilter(f){tripFilter=f;["all","upcoming","past","dream"].forEach(x=>document.getElementById("filter-"+x)?.classList.toggle("active",x===f));renderTrips()}
+function renderTrips(){const visible=trips.filter(t=>tripFilter==="all"||t.status===tripFilter);tripsList.innerHTML=visible.length?visible.map(t=>{const p=planner(t), pk=packFor(t.id), td=todosFor(t.id), j=journalsFor(t.id);return `<div class="card"><span class="pill">${t.status}</span><h2>${t.title}</h2><p class="muted">${t.country||""}<br>${dateNice(t.start_date)}${t.end_date?" – "+dateNice(t.end_date):""}</p><div class="stats"><div class="stat"><strong>${pk.filter(x=>x.packed).length}/${pk.length}</strong><span>Packed</span></div><div class="stat"><strong>${td.filter(x=>x.completed).length}/${td.length}</strong><span>Done</span></div><div class="stat"><strong>${j.length}</strong><span>Journals</span></div></div><p class="muted">Ref: ${p.booking_reference||"not added"}<br>Budget left: ${money((p.budget||0)-(p.paid||0))}</p><div class="action-row"><button onclick="openTrip('${t.id}')">Open</button><button class="secondary" onclick="editTrip('${t.id}')">Edit</button></div></div>`}).join(""):'<div class="empty"><h2>No adventures yet</h2></div>'}
+function openTrip(id){selectedTripId=id;renderTripDetail();showPage("tripDetail")}
+function renderTripDetail(){const t=trips.find(x=>String(x.id)===String(selectedTripId));if(!t)return;const p=planner(t), pk=packFor(t.id), td=todosFor(t.id), j=journalsFor(t.id), mp=pinsFor(t.id);tripDetail.innerHTML=`<div class="card"><span class="pill">${t.status}</span><h1>${t.title}</h1><p class="muted">${t.country||""}<br>${dateNice(t.start_date)}${t.end_date?" – "+dateNice(t.end_date):""}</p><div class="action-row"><button onclick="quickJournalForTrip('${t.id}')">Add Journal</button><button class="secondary" onclick="editTrip('${t.id}')">Edit Plan</button></div></div><div class="card"><h2>📌 Booking</h2><p class="muted">Ref: ${p.booking_reference||"Not added"}<br>Stay: ${p.accommodation||"Not added"}<br>${p.address||""}<br>Check-in ${p.check_in||"--"} • Check-out ${p.check_out||"--"}</p></div><div class="card"><h2>💰 Budget</h2><div class="stats"><div class="stat"><strong>${money(p.budget)}</strong><span>Budget</span></div><div class="stat"><strong>${money(p.paid)}</strong><span>Paid</span></div><div class="stat"><strong>${money((p.budget||0)-(p.paid||0))}</strong><span>Left</span></div></div></div><div class="card"><h2>🧳 Packing</h2><label>Add item</label><input id="newPackItem"><button onclick="addPacking('${t.id}')">Add Packing Item</button>${pk.map(i=>`<div class="check-item"><input type="checkbox" ${i.packed?"checked":""} onchange="togglePacking('${i.id}',this.checked)"><span>${i.item}</span></div>`).join("")}</div><div class="card"><h2>✅ To Do</h2><label>Add task</label><input id="newTodoItem"><button onclick="addTodo('${t.id}')">Add Task</button>${td.map(i=>`<div class="check-item"><input type="checkbox" ${i.completed?"checked":""} onchange="toggleTodo('${i.id}',this.checked)"><span>${i.task}</span></div>`).join("")}</div><div class="card"><h2>📖 Journal</h2>${j.map(x=>`<div class="planner-section"><h3>${x.mood||"📖"} ${x.title||x.author_name||"Memory"}</h3><p class="muted">${dateNice(x.entry_date)} • ${x.author_name||x.member_email||""}<br>${"⭐".repeat(Number(x.rating)||0)}<br>${x.journal||""}</p></div>`).join("")||'<p class="muted">No journal yet.</p>'}</div><div class="card"><h2>🗺 Map Pins</h2>${mp.map(x=>`<p class="muted">📍 ${x.name} — ${x.notes||""}</p>`).join("")||'<p class="muted">No pins yet.</p>'}</div>`}
+async function addPacking(id){if(!newPackItem.value)return;await db.from("packing_items").insert([{trip_id:id,item:newPackItem.value,packed:false}]);await loadData();openTrip(id)}
+async function togglePacking(id,val){await db.from("packing_items").update({packed:val}).eq("id",id);await loadData();renderTripDetail()}
+async function addTodo(id){if(!newTodoItem.value)return;await db.from("todo_items").insert([{trip_id:id,task:newTodoItem.value,completed:false}]);await loadData();openTrip(id)}
+async function toggleTodo(id,val){await db.from("todo_items").update({completed:val}).eq("id",id);await loadData();renderTripDetail()}
+
+function clearTripForm(){tripId.value="";tripFormTitle.textContent="Add Adventure";["tripTitleInput","tripCountryInput","tripStartInput","tripEndInput","tripFavouriteInput","bookingRefInput","accommodationInput","addressInput","travelDetailsInput","checkInInput","checkOutInput","budgetInput","paidInput","plannerNotesInput"].forEach(id=>document.getElementById(id).value="");tripStatusInput.value="upcoming";tripFlightsInput.value=0}
+function editTrip(id){const t=trips.find(x=>String(x.id)===String(id));const p=planner(t);tripId.value=t.id;tripFormTitle.textContent="Edit Adventure";tripTitleInput.value=t.title||"";tripCountryInput.value=t.country||"";tripStartInput.value=t.start_date||"";tripEndInput.value=t.end_date||"";tripStatusInput.value=t.status||"upcoming";tripFlightsInput.value=t.flights||0;tripFavouriteInput.value=t.favourite||"";bookingRefInput.value=p.booking_reference||"";accommodationInput.value=p.accommodation||"";addressInput.value=p.address||"";travelDetailsInput.value=p.travel||"";checkInInput.value=p.check_in||"";checkOutInput.value=p.check_out||"";budgetInput.value=p.budget||"";paidInput.value=p.paid||"";plannerNotesInput.value=p.notes||"";showPage("tripForm")}
+async function saveTrip(){const payload={title:tripTitleInput.value,country:tripCountryInput.value,start_date:tripStartInput.value||null,end_date:tripEndInput.value||null,status:tripStatusInput.value,flights:Number(tripFlightsInput.value)||0,favourite:tripFavouriteInput.value};let r;if(tripId.value){r=await db.from("adventures").update(payload).eq("id",tripId.value)}else{r=await db.from("adventures").insert([payload]).select().single()}if(r.error)return alert(r.error.message);const id=tripId.value||r.data.id;const plan={trip_id:id,booking_reference:bookingRefInput.value,accommodation:accommodationInput.value,address:addressInput.value,travel:travelDetailsInput.value,check_in:checkInInput.value,check_out:checkOutInput.value,budget:Number(budgetInput.value)||0,paid:Number(paidInput.value)||0,notes:plannerNotesInput.value};const existing=planners.find(p=>String(p.trip_id)===String(id));if(existing)await db.from("trip_planner").update(plan).eq("id",existing.id);else await db.from("trip_planner").insert([plan]);await logActivity((tripId.value?"Updated ":"Added ")+payload.title);await loadData();showPage("trips")}
+
+function renderJournal(){journalTripSelect.innerHTML=trips.map(t=>`<option value="${t.id}">${t.title}</option>`).join("");journalList.innerHTML=journals.length?journals.map(j=>`<div class="card"><span class="pill">${j.mood||"📖"} ${"⭐".repeat(Number(j.rating)||0)}</span><h2>${j.title||"Memory"}</h2><p class="muted">${dateNice(j.entry_date)} • ${j.author_name||j.member_email||""}<br>${j.journal||""}<br><strong>${j.favourite||""}</strong></p></div>`).join(""):'<div class="empty"><h2>No journal entries yet</h2></div>';setMood(selectedMood);setStars(selectedStars)}
+function setMood(m){selectedMood=m;["😀","😍","😎","😴","🤯"].forEach(x=>document.getElementById("mood-"+x)?.classList.toggle("active",x===m))}
+function setStars(n){selectedStars=n;[1,2,3,4,5].forEach(x=>document.getElementById("star-"+x)?.classList.toggle("active",x<=n))}
+function quickJournalForTrip(id){showPage("journal");setTimeout(()=>{journalTripSelect.value=id;journalTextInput.focus()},100)}
+async function saveJournalEntry(){const id=journalTripSelect.value;if(!id)return;const payload={trip_id:id,member_email:currentUser.email,author_name:currentMember?.name||currentUser.email,entry_date:new Date().toISOString().slice(0,10),mood:selectedMood,rating:selectedStars,title:journalTitleInput.value,journal:journalTextInput.value,favourite:journalFavouriteInput.value,extras:journalExtrasInput.value};const r=await db.from("journal_entries").insert([payload]);if(r.error)return alert(r.error.message);await logActivity("Added journal entry");journalTitleInput.value=journalTextInput.value=journalFavouriteInput.value=journalExtrasInput.value="";await loadData();showPage("journal")}
+
+async function saveVote(){const opts=listLines(voteOptionsInput.value);if(!voteTitleInput.value||opts.length<2)return alert("Add a question and at least two options.");const r=await db.from("family_votes").insert([{title:voteTitleInput.value,closes:voteCloseInput.value||null,created_by_email:currentUser.email,status:"open"}]).select().single();if(r.error)return alert(r.error.message);for(let i=0;i<opts.length;i++)await db.from("vote_options").insert([{vote_id:r.data.id,option:opts[i],sort_order:i}]);voteTitleInput.value=voteOptionsInput.value=voteCloseInput.value="";await loadData();showPage("votes")}
+function renderVotes(){votesList.innerHTML=votes.length?votes.map(v=>{const opts=voteOptions.filter(o=>String(o.vote_id)===String(v.id));const responses=voteResponses.filter(r=>String(r.vote_id)===String(v.id));const mine=responses.find(r=>norm(r.member_email)===norm(currentUser.email));return `<div class="card"><span class="pill">${v.status}</span><h2>${v.title}</h2><p class="muted">${responses.length} votes cast${mine?" • You voted":""}</p>${opts.map(o=>{const c=responses.filter(r=>String(r.option_id)===String(o.id)).length;const pct=responses.length?Math.round(c/responses.length*100):0;return `<button class="vote-choice ${mine&&String(mine.option_id)===String(o.id)?"selected":""}" onclick="submitVote('${v.id}','${o.id}')">${mine&&String(mine.option_id)===String(o.id)?"✅":"○"} ${o.option}</button><div class="progress"><div style="width:${pct}%"></div></div><p class="small">${c} votes • ${pct}%</p>`}).join("")}${canAdmin()?`<button class="danger" onclick="deleteVote('${v.id}')">Delete Vote</button>`:""}</div>`}).join(""):'<div class="empty"><h2>No votes yet</h2></div>'}
+async function submitVote(voteId,optId){const mine=voteResponses.find(r=>String(r.vote_id)===String(voteId)&&norm(r.member_email)===norm(currentUser.email));if(mine)await db.from("vote_responses").update({option_id:optId,member_name:currentMember?.name}).eq("id",mine.id);else await db.from("vote_responses").insert([{vote_id:voteId,option_id:optId,member_email:currentUser.email,member_name:currentMember?.name}]);await loadData();showPage("votes")}
+async function deleteVote(id){if(!confirm("Delete vote?"))return;await db.from("vote_responses").delete().eq("vote_id",id);await db.from("vote_options").delete().eq("vote_id",id);await db.from("family_votes").delete().eq("id",id);await loadData()}
+
+function renderMap(){mapTripSelect.innerHTML=trips.map(t=>`<option value="${t.id}">${t.title}</option>`).join("");const places=[...new Set(trips.map(t=>t.country).filter(Boolean))];worldPins.innerHTML=places.length?places.map(p=>`<span class="map-pin">📍 ${p}</span>`).join(""):"No places yet.";mapList.innerHTML=pins.map(p=>`<div class="card"><span class="pill">${p.type||"pin"}</span><h2>📍 ${p.name}</h2><p class="muted">${p.notes||""}</p></div>`).join("")}
+async function saveMapPin(){if(!mapNameInput.value)return;await db.from("trip_locations").insert([{trip_id:mapTripSelect.value,name:mapNameInput.value,type:mapTypeInput.value,notes:mapNotesInput.value}]);mapNameInput.value=mapTypeInput.value=mapNotesInput.value="";await loadData();showPage("map")}
+
+function renderPassport(){const places=[...new Set(trips.map(t=>t.country).filter(Boolean))];passportList.innerHTML=places.length?places.map(p=>`<div class="card"><span class="pill">Passport Stamp</span><h2>📍 ${p}</h2><p class="muted">${trips.filter(t=>t.country===p).map(t=>t.title).join(" • ")}</p></div>`).join(""):'<div class="empty"><h2>No stamps yet</h2></div>';const badges=[["✈️","First Flight",trips.some(t=>Number(t.flights)>0)],["📖","Memory Maker",journals.length>0],["🗳","Family Voter",voteResponses.length>0],["🌍","Five Places",places.length>=5],["🧳","Packed and Ready",packing.length>0&&packing.every(p=>p.packed)],["✅","Planner",todos.length>0]];achievementList.innerHTML=badges.map(b=>`<div class="badge"><strong>${b[2]?"✅":b[0]}</strong><h3>${b[1]}</h3><p class="muted">${b[2]?"Unlocked":"Locked"}</p></div>`).join("")}
+function renderActivity(){activityList.innerHTML=activities.map(a=>`<div class="card"><span class="pill">${new Date(a.created_at).toLocaleString("en-GB")}</span><h3>${a.action}</h3><p class="muted">${a.member_email||""}</p></div>`).join("")||'<div class="empty"><h2>No activity yet</h2></div>'}
+function renderProfile(){profileBox.innerHTML=`<div class="card"><h2>${roleIcon(currentMember?.role)} ${currentMember?.name}</h2><p class="muted">${currentUser?.email}<br>Role: ${currentMember?.role}<br>Logins: ${currentMember?.total_logins||0}</p></div>`}
+function renderAdmin(){adminBox.innerHTML=`<div class="stats"><div class="stat"><strong>${members.length}</strong><span>Members</span></div><div class="stat"><strong>${trips.length}</strong><span>Trips</span></div><div class="stat"><strong>${journals.length}</strong><span>Journals</span></div></div><div class="card"><button onclick="showPage('memberForm')">Add Family Member</button><button class="secondary" onclick="showPage('activity')">View Activity</button></div>`}
+function renderSelects(){if(storyTripSelect)storyTripSelect.innerHTML=trips.map(t=>`<option value="${t.id}">${t.title}</option>`).join("")}
+function renderSearch(){if(!searchResults)return;const q=norm(searchInput?.value);if(!q){searchResults.innerHTML='<div class="empty"><h2>Search the app</h2></div>';return}const r=[];trips.forEach(t=>{const p=planner(t);if(norm([t.title,t.country,t.favourite,p.booking_reference,p.accommodation,p.address].join(" ")).includes(q))r.push(`<div class="card"><span class="pill">Trip</span><h2>${t.title}</h2><p class="muted">${t.country||""}</p></div>`)});journals.forEach(j=>{if(norm([j.title,j.journal,j.favourite].join(" ")).includes(q))r.push(`<div class="card"><span class="pill">Journal</span><h2>${j.title||"Memory"}</h2><p class="muted">${j.journal||""}</p></div>`)});searchResults.innerHTML=r.join("")||'<div class="empty"><h2>No results</h2></div>'}
+function renderStoryBook(){const t=trips.find(x=>String(x.id)===String(storyTripSelect.value));if(!t)return;const p=planner(t), j=journalsFor(t.id);storyOutput.innerHTML=`<div class="card"><span class="pill">Adventure Book</span><h1>${t.title}</h1><p class="muted">${t.country||""} • ${dateNice(t.start_date)}</p><div class="planner-section"><h2>Plan</h2><p class="muted">Ref: ${p.booking_reference||"Not added"}<br>${p.accommodation||""}</p></div><div class="planner-section"><h2>Memories</h2>${j.map(x=>`<p class="muted">${x.mood||"📖"} ${x.author_name||""}: ${x.journal||""}</p>`).join("")||'<p class="muted">No memories yet.</p>'}</div></div>`}
+
+function showPage(page){document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));document.getElementById(page+"Page").classList.remove("hidden");document.getElementById("nav-"+page)?.classList.add("active");window.scrollTo({top:0,behavior:"smooth"});if(page==="journal"){setMood(selectedMood);setStars(selectedStars)}}
+setInterval(updateCountdown,60000);
+db.auth.getSession().then(async r=>{if(r.data.session){currentUser=r.data.session.user;await bootApp()}});
+</script>
+</body>
+</html>
