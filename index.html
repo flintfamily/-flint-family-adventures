@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flint Family Adventures</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:linear-gradient(rgba(3,7,18,.86),rgba(3,7,18,.96)),radial-gradient(circle at top,#38bdf8 0%,#0f172a 40%,#020617 100%);color:white;min-height:100vh}
+.hidden{display:none!important}.screen{min-height:100vh;padding:24px 16px 106px}.wrap{max-width:620px;margin:0 auto}
+.glass{background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.18);box-shadow:0 24px 70px rgba(0,0,0,.35);backdrop-filter:blur(18px)}
+#authScreen{display:flex;align-items:center;justify-content:center}.auth-card{width:100%;max-width:430px;border-radius:30px;padding:28px;text-align:center}
+.logo{font-size:54px;margin-bottom:12px}h1,h2,h3,p{margin-top:0}h1{font-size:32px;line-height:1.05;margin-bottom:10px}h2{font-size:24px;margin-bottom:10px}h3{font-size:18px;margin-bottom:6px}
+.muted{color:rgba(255,255,255,.72);line-height:1.45}.small{font-size:13px;color:rgba(255,255,255,.65)}
+input,textarea,select{width:100%;padding:15px;border-radius:16px;border:none;font-size:16px;margin:8px 0 12px;outline:none;font-family:inherit;background:#fff;color:#0f172a}
+textarea{min-height:95px}label{font-size:13px;font-weight:800;color:rgba(255,255,255,.78);display:block;text-align:left}
+button{width:100%;padding:16px;border-radius:16px;border:none;font-size:17px;font-weight:800;background:#f8fafc;color:#0f172a;margin-top:6px}.secondary{background:rgba(255,255,255,.14);color:white;border:1px solid rgba(255,255,255,.18)}.danger{background:#fecaca;color:#7f1d1d}
+.error{min-height:22px;color:#fecaca;margin-top:14px}.success{color:#bbf7d0;margin-top:12px}.hero{border-radius:32px;padding:24px 22px;margin-bottom:16px}.welcome{font-size:18px;font-weight:800;margin-bottom:6px}.tagline{color:rgba(255,255,255,.78);margin-bottom:0;line-height:1.45}
+.notice{border-radius:18px;padding:12px;margin-bottom:12px;background:rgba(14,165,233,.18);border:1px solid rgba(125,211,252,.25);font-size:13px;color:rgba(255,255,255,.82)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}.tile{min-height:130px;border-radius:24px;padding:18px;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.17);backdrop-filter:blur(16px)}
+.tile:active,.list-card:active,.back:active{transform:scale(.98)}.tile-icon{font-size:30px;margin-bottom:14px}.tile p{font-size:13px;color:rgba(255,255,255,.70);line-height:1.35;margin-bottom:0}
+.page-title{margin:8px 0 18px}.back{display:inline-block;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.16);margin-bottom:14px;font-weight:750}
+.list-card{border-radius:24px;padding:18px;margin-bottom:12px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.15)}
+.pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.78);font-size:12px;font-weight:750;margin-bottom:10px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}.stat{border-radius:18px;padding:12px 8px;text-align:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14)}
+.stat strong{display:block;font-size:24px}.stat span{font-size:12px;color:rgba(255,255,255,.68)}
+.member-row{display:flex;gap:12px;align-items:center}.avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.15);font-size:22px;flex:0 0 auto}
+.bottom-nav{position:fixed;left:12px;right:12px;bottom:12px;max-width:620px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:10px;border-radius:24px;background:rgba(2,6,23,.88);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(20px);z-index:5}
+.nav-item{text-align:center;font-size:12px;color:rgba(255,255,255,.72)}.nav-item span{display:block;font-size:21px;margin-bottom:3px}.nav-item.active{color:white;font-weight:800}
+</style>
+</head>
+<body>
+
+<section id="familyGateScreen" class="screen">
+  <div class="auth-card glass">
+    <div class="logo">🏔️</div>
+    <h1>Flint Family Adventures</h1>
+    <p class="muted">Private family access.</p>
+    <label>Family password</label>
+    <input id="familyPassword" type="password" placeholder="Enter family password">
+    <button onclick="unlockFamilyGate()">Continue</button>
+    <p id="gateMessage" class="error"></p>
+  </div>
+</section>
+
+<section id="authScreen" class="screen hidden"><div class="auth-card glass"><div class="logo">🏔️</div><h1>Flint Family Adventures</h1><p class="muted">Sign in to your private family adventure app.</p>
+<div id="loginBox"><label>Email</label><input id="loginEmail" type="email" placeholder="you@email.com"><label>Password</label><input id="loginPassword" type="password" placeholder="Password"><button onclick="signIn()">Log In</button><button class="secondary" onclick="showAuth('signup')">Create Account</button><button class="secondary" onclick="resetPassword()">Forgot Password</button><p id="loginMessage" class="error"></p></div>
+<div id="signupBox" class="hidden"><label>Name</label><input id="signupName" placeholder="Your name"><label>Email</label><input id="signupEmail" type="email" placeholder="you@email.com"><label>Password</label><input id="signupPassword" type="password" placeholder="Choose a password"><button onclick="signUp()">Create Account</button><button class="secondary" onclick="showAuth('login')">Back to Login</button><p id="signupMessage" class="success"></p></div>
+</div></section>
+
+<section id="appScreen" class="screen hidden"><div class="wrap">
+<div id="homePage" class="page"><div class="hero glass"><div class="logo">🏔️</div><h1>Flint Family Adventures</h1><p id="welcomeText" class="welcome">Welcome Home</p><p class="tagline">Every Adventure. Every Memory. One Place.</p></div><div class="notice" id="ownerBadge">Loading family access...</div>
+<div class="stats"><div class="stat"><strong id="memberCount">0</strong><span>Members</span></div><div class="stat"><strong id="loginCount">0</strong><span>Your Logins</span></div><div class="stat"><strong id="activityCount">0</strong><span>Activities</span></div></div>
+<div class="grid"><div class="tile" onclick="showPage('family')"><div class="tile-icon">👨‍👩‍👧</div><h3>Family</h3><p>Members, roles and access.</p></div><div class="tile" onclick="showPage('admin')"><div class="tile-icon">👑</div><h3>Owner Tools</h3><p>Admin dashboard and activity.</p></div><div class="tile" onclick="showPage('activity')"><div class="tile-icon">📋</div><h3>Activity</h3><p>See what has happened.</p></div><div class="tile" onclick="showPage('profile')"><div class="tile-icon">🙂</div><h3>Profile</h3><p>Your account and role.</p></div><div class="tile" onclick="showPage('adventures')"><div class="tile-icon">✈️</div><h3>Adventures</h3><p>Trips return in the next build.</p></div><div class="tile" onclick="signOut()"><div class="tile-icon">🔒</div><h3>Log Out</h3><p>Sign out safely.</p></div></div></div>
+
+<div id="familyPage" class="page hidden"><div class="back" onclick="showPage('home')">← Home</div><h1 class="page-title">👨‍👩‍👧 Family Members</h1><button onclick="showPage('invite')">➕ Add Family Member</button><div id="membersList" style="margin-top:14px"></div></div>
+<div id="invitePage" class="page hidden"><div class="back" onclick="showPage('family')">← Family</div><h1 class="page-title">➕ Add Family Member</h1><div class="list-card"><p class="muted">Add their email here first. They then use the family password, tap Create Account, and create their own password with the same email.</p><label>Name</label><input id="memberName" placeholder="Hannah"><label>Email</label><input id="memberEmail" type="email" placeholder="email@example.com"><label>Role</label><select id="memberRole"><option>owner</option><option>editor</option><option>junior explorer</option><option>viewer</option></select><button onclick="addMember()">Save Family Member</button></div></div>
+<div id="adminPage" class="page hidden"><div class="back" onclick="showPage('home')">← Home</div><h1 class="page-title">👑 Owner Console</h1><div class="stats"><div class="stat"><strong id="adminMembers">0</strong><span>Members</span></div><div class="stat"><strong id="adminActive">0</strong><span>Active</span></div><div class="stat"><strong id="adminLogins">0</strong><span>Total Logins</span></div></div><div class="list-card"><h2>Quick Actions</h2><button onclick="showPage('invite')">Invite/Add Member</button><button class="secondary" onclick="loadEverything()">Refresh</button></div></div>
+<div id="activityPage" class="page hidden"><div class="back" onclick="showPage('home')">← Home</div><h1 class="page-title">📋 Recent Activity</h1><div id="activityList"></div></div>
+<div id="profilePage" class="page hidden"><div class="back" onclick="showPage('home')">← Home</div><h1 class="page-title">🙂 My Profile</h1><div id="profileBox"></div></div>
+<div id="adventuresPage" class="page hidden"><div class="back" onclick="showPage('home')">← Home</div><h1 class="page-title">✈️ Adventures</h1><div class="list-card"><h2>Next build</h2><p class="muted">Now the family/admin foundation is in place, the next build will bring back trips with proper permissions.</p></div></div>
+</div><nav class="bottom-nav"><div id="nav-home" class="nav-item active" onclick="showPage('home')"><span>🏠</span>Home</div><div id="nav-family" class="nav-item" onclick="showPage('family')"><span>👨‍👩‍👧</span>Family</div><div id="nav-admin" class="nav-item" onclick="showPage('admin')"><span>👑</span>Admin</div><div id="nav-activity" class="nav-item" onclick="showPage('activity')"><span>📋</span>Activity</div><div id="nav-profile" class="nav-item" onclick="showPage('profile')"><span>🙂</span>Profile</div></nav>
+</section>
+
+<script>
+const SUPABASE_URL="https://exrbyfibgnblhhuzfjgv.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_H8-U2hZ3WZ4OR3cVVaV4cw_5RBCZis0";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+let currentUser=null,currentMember=null,members=[],activities=[];
+const FAMILY_GATE_PASSWORD="flint2026";
+
+function unlockFamilyGate(){
+  if(familyPassword.value===FAMILY_GATE_PASSWORD){
+    familyGateScreen.classList.add("hidden");
+    authScreen.classList.remove("hidden");
+    gateMessage.textContent="";
+  } else {
+    gateMessage.textContent="Incorrect family password.";
+  }
+}
+
+
+function showAuth(which){loginBox.classList.toggle("hidden",which!=="login");signupBox.classList.toggle("hidden",which!=="signup")}
+async function signIn(){loginMessage.textContent="Signing in...";const r=await db.auth.signInWithPassword({email:loginEmail.value,password:loginPassword.value});if(r.error){loginMessage.textContent=r.error.message;return}currentUser=r.data.user;await afterLogin()}
+async function signUp(){
+  signupMessage.textContent="Checking family access...";
+  const email=(signupEmail.value||"").toLowerCase().trim();
+  const approved=await db.from("family_members").select("*").eq("email",email).maybeSingle();
+  if(!approved.data){
+    signupMessage.textContent="";
+    alert("This email has not been added by Luke yet.");
+    return;
+  }
+  signupMessage.textContent="Creating account...";
+  const r=await db.auth.signUp({email:email,password:signupPassword.value,options:{data:{name:signupName.value}}});
+  if(r.error){signupMessage.textContent=r.error.message;return}
+  signupMessage.textContent="Account created. Check your email if confirmation is requested, then log in.";
+}
+async function resetPassword(){if(!loginEmail.value){loginMessage.textContent="Enter your email first.";return}const r=await db.auth.resetPasswordForEmail(loginEmail.value,{redirectTo:"https://flintfamilyadventures.uk"});loginMessage.textContent=r.error?r.error.message:"Password reset email sent."}
+async function signOut(){await db.auth.signOut();location.reload()}
+async function afterLogin(){
+  const email=(currentUser.email||"").toLowerCase();
+  const approved=await db.from("family_members").select("*").eq("email",email).maybeSingle();
+  if(!approved.data){
+    await db.auth.signOut();
+    authScreen.classList.remove("hidden");
+    appScreen.classList.add("hidden");
+    loginMessage.textContent="This email has not been approved for Flint Family Adventures.";
+    return;
+  }
+  authScreen.classList.add("hidden");
+  appScreen.classList.remove("hidden");
+  await loadEverything();
+  await recordLogin();
+  await loadEverything();
+  showPage("home");
+}
+async function loadEverything(){
+  const u=await db.auth.getUser();
+  currentUser=u.data.user;
+  if(!currentUser)return;
+  const mem=await db.from("family_members").select("*").order("created_at",{ascending:true});
+  if(mem.error){ownerBadge.textContent="Family table error: "+mem.error.message;return}
+  members=mem.data||[];
+  currentMember=members.find(m=>(m.email||"").toLowerCase()===currentUser.email.toLowerCase());
+  const act=await db.from("activity_log").select("*").order("created_at",{ascending:false}).limit(30);
+  activities=act.data||[];
+  renderAll();
+}
+async function ensureMember(email,name,role){const check=await db.from("family_members").select("*").eq("email",email).maybeSingle();if(check.data)return;await db.from("family_members").insert([{name:name,email:email,role:role,total_logins:0,is_active:true}])}
+async function recordLogin(){const email=currentUser.email;const member=members.find(m=>(m.email||"").toLowerCase()===email.toLowerCase());if(member){await db.from("family_members").update({last_login:new Date().toISOString(),total_logins:(member.total_logins||0)+1}).eq("id",member.id)}await logActivity("Logged in")}
+async function logActivity(action){await db.from("activity_log").insert([{member_email:currentUser.email,action:action}])}
+async function addMember(){const payload={name:memberName.value,email:memberEmail.value,role:memberRole.value,total_logins:0,is_active:true};const r=await db.from("family_members").insert([payload]);if(r.error){alert(r.error.message);return}await logActivity("Added family member: "+memberName.value);memberName.value="";memberEmail.value="";await loadEverything();showPage("family")}
+async function removeMember(id,name){if(!confirm("Remove "+name+" from the family list?"))return;const r=await db.from("family_members").delete().eq("id",id);if(r.error){alert(r.error.message);return}await logActivity("Removed family member: "+name);await loadEverything()}
+function renderAll(){welcomeText.textContent="Welcome Home, "+(currentMember?.name||"Flint Family");ownerBadge.textContent=(currentMember?.role==="owner"?"👑 Owner access active":"Family access active")+" • "+currentUser.email;memberCount.textContent=members.length;activityCount.textContent=activities.length;loginCount.textContent=currentMember?.total_logins||0;adminMembers.textContent=members.length;adminActive.textContent=members.filter(m=>m.is_active).length;adminLogins.textContent=members.reduce((s,m)=>s+(m.total_logins||0),0);renderMembers();renderActivity();renderProfile()}
+function roleIcon(role){if(role==="owner")return"👑";if(role==="editor")return"✏️";if(role==="junior explorer")return"⭐";return"👀"}
+function renderMembers(){membersList.innerHTML=members.map(m=>`<div class="list-card"><div class="member-row"><div class="avatar">${roleIcon(m.role)}</div><div><h3>${m.name||"Unnamed"}</h3><p class="muted">${m.email}<br>${m.role||"viewer"} • logins: ${m.total_logins||0} • last: ${m.last_login?new Date(m.last_login).toLocaleString("en-GB"):"never"}</p></div></div><button class="danger" onclick="removeMember('${m.id}','${(m.name||"member").replaceAll("'","")}')">Remove</button></div>`).join("")}
+function renderActivity(){activityList.innerHTML=activities.length?activities.map(a=>`<div class="list-card"><span class="pill">${new Date(a.created_at).toLocaleString("en-GB")}</span><h3>${a.action}</h3><p class="muted">${a.member_email}</p></div>`).join(""):'<div class="list-card"><h2>No activity yet</h2></div>'}
+function renderProfile(){profileBox.innerHTML=`<div class="list-card"><h2>${roleIcon(currentMember?.role)} ${currentMember?.name||"Your profile"}</h2><p class="muted">${currentUser.email}<br>Role: ${currentMember?.role||"viewer"}<br>Total logins: ${currentMember?.total_logins||0}</p></div>`}
+function showPage(page){document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));document.getElementById(page+"Page").classList.remove("hidden");const nav=document.getElementById("nav-"+page);if(nav)nav.classList.add("active");window.scrollTo({top:0,behavior:"smooth"})}
+db.auth.getSession().then(async r=>{if(r.data.session){currentUser=r.data.session.user;await afterLogin()}});
+</script>
+</body>
+</html>
